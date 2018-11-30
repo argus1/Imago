@@ -1,0 +1,11 @@
+Imago License
+
+Copyright (c) 2018 Argus
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of Imago (hereafter referred to as “The Software”) and associated documentation files, to employ Imago to it’s intended purpose of increasing security and traceability of medical images, including the rights to use the Software in its current form, and to permit persons to whom the Software is furnished to do so.  Said persons may not modify the software and distribute modified versions without permission from the copyright holders after review of the modification(s).  Furthermore, for later versions of this software that are bound to differing license, said persons may not reconstruct the later versions from this version to duplicate functionailty without the permission of the copyright holder.   Said persons have the above described rights  subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.  THIS INCLUDES VIOLATIONS OF THE PRIVACY AND POTENTIAL DAMAGES RESULTING FROM DISCLOSURE OF DISEASES OR CONDITIONS OF INDIVIDUALS IDENTIFIABLE OR NOT WHO ARE DEPICTED IN THE IMAGES SECURED BY THIS SOFTWARE.
