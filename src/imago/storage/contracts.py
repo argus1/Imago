@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Protocol
+from typing import Protocol, runtime_checkable
 
 from imago.storage.policy import DataClassification, FormatProfile
 
@@ -49,3 +49,15 @@ class LedgerWriter(Protocol):
 class AtomicIngestionService(Protocol):
     def ingest(self, payload: IngestionPayload) -> IngestionResult:
         """Perform object store, metadata index, and ledger write as one operation."""
+
+
+@runtime_checkable
+class DeletableObjectStorage(Protocol):
+    def delete_object(self, key: str) -> None:
+        """Delete object for compensation when downstream steps fail."""
+
+
+@runtime_checkable
+class CompensatingMetadataIndex(Protocol):
+    def delete_metadata(self, metadata_id: str) -> None:
+        """Delete metadata record for compensation when ledger write fails."""

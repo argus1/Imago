@@ -1,6 +1,7 @@
 """Storage adapter interfaces and strategy helpers."""
 
 from imago.storage.contracts import IngestionPayload, IngestionResult
+from imago.storage.ingestion import AtomicIngestionCoordinator, IngestionError
 from imago.storage.policy import (
 	DataClassification,
 	FormatFamily,
@@ -12,7 +13,9 @@ __all__ = [
 	"DataClassification",
 	"FormatFamily",
 	"FormatProfile",
+	"AtomicIngestionCoordinator",
 	"IngestionPayload",
 	"IngestionResult",
+	"IngestionError",
 	"profile_for_format",
 ]
