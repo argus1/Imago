@@ -1,0 +1,72 @@
+[build-system]
+requires = ["hatchling>=1.25.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "imago"
+version = "0.1.0"
+description = "Permissioned ledger service for secure medical image access events"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { file = "license.txt" }
+authors = [
+  { name = "Imago Team" }
+]
+dependencies = [
+  "fastapi>=0.116.0",
+  "pydantic-settings>=2.4.0",
+  "uvicorn[standard]>=0.30.0"
+]
+
+[project.optional-dependencies]
+dev = [
+  "mypy>=1.11.0",
+  "pre-commit>=3.8.0",
+  "pytest>=8.3.0",
+  "ruff>=0.6.0"
+]
+imaging = [
+  "nibabel>=5.2.0",
+  "numpy>=1.26.0",
+  "pydicom>=3.0.0",
+  "zarr>=2.18.0"
+]
+storage = [
+  "boto3>=1.35.0",
+  "google-cloud-storage>=2.18.0",
+  "minio>=7.2.0",
+  "psycopg[binary]>=3.2.0"
+]
+
+[project.scripts]
+imago-api = "imago.main:run"
+
+[tool.pytest.ini_options]
+addopts = "-q --strict-markers"
+testpaths = ["tests"]
+pythonpath = ["src"]
+markers = [
+  "unit: fast tests for single modules",
+  "integration: tests that cross module boundaries",
+  "system: end-to-end behavior checks"
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_unused_configs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+disallow_any_generics = true
+disallow_subclassing_any = true
+no_implicit_optional = true
+show_error_codes = true
+mypy_path = ["src"]
+packages = ["imago"]

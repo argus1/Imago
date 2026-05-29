@@ -11,3 +11,6 @@ htmlcov/
 .env
 .data/
 DevPlan.md
+compliance/
+medical_image_file_formats.md
+storage strategy_medical_images.md
