@@ -1,13 +1,24 @@
 import base64
+from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
 
+from imago.api.dependencies import get_ingestion_service
+from imago.config.settings import get_settings
 from imago.main import create_app
 
 
 @pytest.mark.integration
-def test_ingest_endpoint_returns_created_with_classification() -> None:
+def test_ingest_endpoint_returns_created_with_classification(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    monkeypatch.setenv("IMAGO_STORAGE_BACKEND", "filesystem")
+    monkeypatch.setenv("IMAGO_STORAGE_ROOT", str(tmp_path))
+    get_settings.cache_clear()
+    get_ingestion_service.cache_clear()
+
     app = create_app()
     client = TestClient(app)
 
@@ -31,3 +42,6 @@ def test_ingest_endpoint_returns_created_with_classification() -> None:
     assert data["metadata_id"].startswith("meta-")
     assert data["ledger_event_id"].startswith("evt-")
     assert len(data["object_hash"]) == 64
+
+    saved = tmp_path / "study-1" / "series-1" / "image-1.dcm"
+    assert saved.read_bytes() == b"mock-dicom-payload"

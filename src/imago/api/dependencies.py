@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import itertools
 from datetime import UTC, datetime
+from functools import lru_cache
 
+from imago.config.settings import get_settings
 from imago.storage.contracts import (
     AtomicIngestionService,
     IngestionPayload,
@@ -10,6 +12,7 @@ from imago.storage.contracts import (
     MetadataIndex,
     ObjectStorage,
 )
+from imago.storage.filesystem import FilesystemObjectStorage
 from imago.storage.ingestion import AtomicIngestionCoordinator
 
 
@@ -69,15 +72,22 @@ class InMemoryLedgerWriter(LedgerWriter):
         return event_id
 
 
-_object_storage = InMemoryObjectStorage()
-_metadata_index = InMemoryMetadataIndex()
-_ledger_writer = InMemoryLedgerWriter()
-_ingestion_service = AtomicIngestionCoordinator(
-    object_storage=_object_storage,
-    metadata_index=_metadata_index,
-    ledger_writer=_ledger_writer,
-)
+def _build_object_storage() -> ObjectStorage:
+    settings = get_settings()
+    backend = settings.storage_backend.lower()
+
+    if backend == "filesystem":
+        return FilesystemObjectStorage(settings.storage_root)
+    if backend == "memory":
+        return InMemoryObjectStorage()
+
+    raise ValueError(f"unsupported storage backend: {settings.storage_backend}")
 
 
+@lru_cache(maxsize=1)
 def get_ingestion_service() -> AtomicIngestionService:
-    return _ingestion_service
+    return AtomicIngestionCoordinator(
+        object_storage=_build_object_storage(),
+        metadata_index=InMemoryMetadataIndex(),
+        ledger_writer=InMemoryLedgerWriter(),
+    )
