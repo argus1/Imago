@@ -1,2 +1,2 @@
 # Imago
-Secure Access to Medical Images with Blockchain
+Tamper-proof storage of Medical Images enabled with Blockchain
