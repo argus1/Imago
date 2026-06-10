@@ -9,7 +9,9 @@ __pycache__/
 .coverage
 htmlcov/
 .env
+.env.local
 .data/
+aws-devicefarm-credentials.env.local
 DevPlan.md
 compliance/
 medical_image_file_formats.md
