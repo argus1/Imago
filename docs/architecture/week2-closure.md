@@ -38,5 +38,8 @@ Owner: Repository maintainer
 
 ## Notes
 
+- Compliance catch-up artifacts completed after the Week 2 baseline:
+  - `compliance/secure-coding-standard.md`
+  - `compliance/software-development-plan.md`
 - Local default conda environment is Python 3.8 and does not satisfy project requirement (`>=3.11`).
 - CI uses Python 3.11, which matches project support policy.

@@ -19,5 +19,8 @@ Owner: Repository maintainer
 
 ## Notes
 
+- Early compliance documentation baseline now also includes:
+   - `compliance/software-development-plan.md`
+   - `compliance/secure-coding-standard.md`
 - Credential rotation remains a follow-up action.
 - CI security scans are a Week 2 catch-up item.

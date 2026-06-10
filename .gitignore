@@ -19,5 +19,7 @@ compliance/*
 !compliance/software-architecture-and-detailed-design.md
 !compliance/threat-model.md
 !compliance/risk-traceability-matrix.md
+!compliance/secure-coding-standard.md
+!compliance/software-development-plan.md
 medical_image_file_formats.md
 storage strategy_medical_images.md
