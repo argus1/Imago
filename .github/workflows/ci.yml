@@ -3,7 +3,7 @@ name: CI
 on:
   pull_request:
   push:
-    branches: [main]
+    branches: [main, master]
 
 jobs:
   quality:
@@ -28,3 +28,53 @@ jobs:
         run: pytest tests/integration
       - name: System tests
         run: pytest tests/system
+
+  security:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies and security tools
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e .[dev]
+          python -m pip install pip-audit bandit[toml] detect-secrets
+
+      - name: Dependency vulnerability scan
+        run: pip-audit --progress-spinner off
+
+      - name: Secret scan
+        run: |
+          detect-secrets scan --all-files --exclude-files ".*\.example$" > .secrets.baseline
+          python - <<'PY'
+          import json
+          import sys
+
+          with open('.secrets.baseline', encoding='utf-8') as f:
+              data = json.load(f)
+
+          results = data.get('results', {})
+          if results:
+              print('Secrets detected in tracked files:')
+              for file_name, findings in results.items():
+                  print(f'- {file_name}: {len(findings)} finding(s)')
+              sys.exit(1)
+
+          print('No secrets detected in tracked files.')
+          PY
+
+      - name: SAST scan (Bandit)
+        run: bandit -r src -f sarif -o bandit.sarif
+
+      - name: Upload SAST SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: bandit.sarif
