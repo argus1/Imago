@@ -14,6 +14,10 @@ htmlcov/
 .data/
 aws-devicefarm-credentials.env.local
 DevPlan.md
-compliance/
+compliance/*
+!compliance/software-requirements-specification.md
+!compliance/software-architecture-and-detailed-design.md
+!compliance/threat-model.md
+!compliance/risk-traceability-matrix.md
 medical_image_file_formats.md
 storage strategy_medical_images.md
