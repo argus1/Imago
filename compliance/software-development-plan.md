@@ -206,6 +206,12 @@ This SDP aligns with the roadmap in `DevPlan.md`:
 
 Progress and closure records should be captured in `docs/architecture/week*-closure.md` artifacts.
 
+Current closure state (2026-06-13):
+
+- Week 1: Closed (`docs/architecture/week1-closure.md`)
+- Week 2: Closed (`docs/architecture/week2-closure.md`)
+- Week 3: Closed for current implementation slice (`docs/architecture/week3-closure.md`)
+
 ## 14. Entry and exit criteria summary
 
 ### 14.1 Development entry criteria

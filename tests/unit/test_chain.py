@@ -4,6 +4,15 @@ from imago.domain.events import LedgerEvent
 from imago.ledger.chain import LedgerChain
 
 
+def test_canonical_hash_is_deterministic_for_key_order() -> None:
+    chain = LedgerChain()
+
+    payload_a = {"b": 2, "a": 1, "nested": {"z": 26, "m": 13}}
+    payload_b = {"nested": {"m": 13, "z": 26}, "a": 1, "b": 2}
+
+    assert chain.canonical_hash(payload_a) == chain.canonical_hash(payload_b)
+
+
 def test_chain_append_and_verify() -> None:
     chain = LedgerChain()
     event = LedgerEvent.new(
