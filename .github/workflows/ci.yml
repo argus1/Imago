@@ -55,7 +55,7 @@ jobs:
 
       - name: Secret scan
         run: |
-          detect-secrets scan --all-files --exclude-files ".*\.example$" > .secrets.baseline
+          git ls-files -z | xargs -0 detect-secrets scan --exclude-files ".*\.example$" > .secrets.baseline
           python - <<'PY'
           import json
           import sys
