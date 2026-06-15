@@ -21,6 +21,7 @@ compliance/*
 !compliance/risk-traceability-matrix.md
 !compliance/secure-coding-standard.md
 !compliance/software-development-plan.md
+!compliance/release-gate-checklist.md
 medical_image_file_formats.md
 storage strategy_medical_images.md
 docs/imgkb/monai_image_storage.md
