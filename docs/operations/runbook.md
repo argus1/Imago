@@ -21,8 +21,8 @@ This runbook defines the minimum operational procedures for the Week 1 storage b
 
 ### Credentials model
 
-- Commit-safe template: `aws-devicefarm-credentials.env.example`
-- Local secret file (ignored): `aws-devicefarm-credentials.env.local`
+- Commit-safe template: `aws-credentials.env.example`
+- Local secret file (ignored): `aws-credentials.env.local`
 - Never commit real credentials.
 
 ## 3. Routine verification checks
