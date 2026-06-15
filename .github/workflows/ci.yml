@@ -51,6 +51,9 @@ jobs:
           python -m pip install pip-audit bandit[toml] detect-secrets
 
       - name: Dependency vulnerability scan
+        # Audit project dependencies from the repository root to avoid
+        # environment/tooling-only vulnerabilities (for example pip itself)
+        # causing false-positive CI failures.
         run: pip-audit --progress-spinner off .
 
       - name: Secret scan
