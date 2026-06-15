@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import logging
 
 from imago.storage.contracts import (
     AtomicIngestionService,
@@ -13,6 +14,8 @@ from imago.storage.contracts import (
     ObjectStorage,
     ReadableObjectStorage,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class IngestionError(RuntimeError):
@@ -67,14 +70,20 @@ class AtomicIngestionCoordinator(AtomicIngestionService):
         ):
             try:
                 self._metadata_index.delete_metadata(metadata_id)
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.warning(
+                    "failed to roll back metadata during ingestion compensation",
+                    exc_info=exc,
+                )
 
         if isinstance(self._object_storage, DeletableObjectStorage):
             try:
                 self._object_storage.delete_object(object_key)
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.warning(
+                    "failed to delete object during ingestion compensation",
+                    exc_info=exc,
+                )
 
     def verify_object_hash(self, object_key: str) -> str:
         if not isinstance(self._object_storage, ReadableObjectStorage):

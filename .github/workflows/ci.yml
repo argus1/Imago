@@ -1,5 +1,8 @@
 name: CI
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 on:
   pull_request:
   push:
@@ -10,8 +13,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.11"
       - name: Install dependencies
@@ -36,8 +39,8 @@ jobs:
       security-events: write
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.11"
 
@@ -71,10 +74,111 @@ jobs:
           PY
 
       - name: SAST scan (Bandit)
-        run: bandit -r src -f sarif -o bandit.sarif
+        id: bandit
+        shell: bash
+        run: |
+          set +e
+          bandit -r src -f json -o bandit.json
+          bandit_exit_code=$?
+
+          if [[ -f bandit.json ]]; then
+            python - <<'PY'
+            import json
+            from pathlib import Path
+
+            source = Path("bandit.json")
+            data = json.loads(source.read_text(encoding="utf-8"))
+
+            severity_map = {
+                "LOW": "note",
+                "MEDIUM": "warning",
+                "HIGH": "error",
+            }
+
+            rules: dict[str, dict[str, object]] = {}
+            results: list[dict[str, object]] = []
+
+            for finding in data.get("results", []):
+                rule_id = finding["test_id"]
+                rules.setdefault(
+                    rule_id,
+                    {
+                        "id": rule_id,
+                        "name": finding.get("test_name", rule_id),
+                        "shortDescription": {
+                            "text": finding.get("issue_text", rule_id),
+                        },
+                        "help": {
+                            "text": finding.get("more_info", "Bandit finding"),
+                        },
+                        "properties": {
+                            "tags": [
+                                f"severity:{finding.get('issue_severity', 'LOW').lower()}",
+                                f"confidence:{finding.get('issue_confidence', 'LOW').lower()}",
+                            ],
+                        },
+                    },
+                )
+
+                results.append(
+                    {
+                        "ruleId": rule_id,
+                        "level": severity_map.get(
+                            finding.get("issue_severity", "LOW"),
+                            "warning",
+                        ),
+                        "message": {
+                            "text": finding.get("issue_text", rule_id),
+                        },
+                        "locations": [
+                            {
+                                "physicalLocation": {
+                                    "artifactLocation": {
+                                        "uri": finding["filename"],
+                                    },
+                                    "region": {
+                                        "startLine": finding.get("line_number", 1),
+                                    },
+                                },
+                            },
+                        ],
+                    },
+                )
+
+            sarif = {
+                "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+                "version": "2.1.0",
+                "runs": [
+                    {
+                        "tool": {
+                            "driver": {
+                                "name": "Bandit",
+                                "informationUri": "https://bandit.readthedocs.io/",
+                                "rules": list(rules.values()),
+                            },
+                        },
+                        "results": results,
+                    },
+                ],
+            }
+
+            Path("bandit.sarif").write_text(
+                json.dumps(sarif, indent=2),
+                encoding="utf-8",
+            )
+            PY
+          fi
+
+          echo "bandit_exit_code=${bandit_exit_code}" >> "$GITHUB_OUTPUT"
 
       - name: Upload SAST SARIF
-        if: always()
-        uses: github/codeql-action/upload-sarif@v3
+        if: always() && hashFiles('bandit.sarif') != ''
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: bandit.sarif
+
+      - name: Fail if Bandit reported findings
+        if: steps.bandit.outputs.bandit_exit_code != '0'
+        run: |
+          echo "Bandit reported findings or encountered an execution error."
+          exit 1
