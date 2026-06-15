@@ -47,6 +47,8 @@ Imago uses an incremental, evidence-driven lifecycle with gated phases:
 5. **Security and operational controls**
 6. **Validation and release readiness**
 
+MONAI data caching support is planned as a controlled extension under phases 4-6, with explicit boundaries between immutable source data and transient AI preprocessing caches.
+
 Each phase closes only when documented exit criteria and verification evidence are complete.
 
 ## 5. Roles and responsibilities
@@ -180,6 +182,16 @@ Development activities must enforce:
 3. Minimal PHI handling in logs and test data.
 4. Explicit auditability for privileged and security-sensitive actions.
 
+### 11.1 MONAI data caching controls
+
+When MONAI caching is enabled for AI workflows, development and release activities must enforce:
+
+1. **Source immutability boundary**: blockchain/hash verification applies to canonical source images only; MONAI cache artifacts are excluded from source-of-truth integrity checks.
+2. **Cache isolation**: `PersistentDataset` cache directories must be outside immutable archive paths and controlled by explicit retention/cleanup rules.
+3. **Data classification alignment**: cached artifacts inherit source classification level and must not be treated as de-identified by default.
+4. **Reproducibility traceability**: cache-generating transform pipeline version (code hash/version) is recorded in execution metadata.
+5. **Environment hardening**: cache paths, size limits, and lifecycle parameters are environment-configurable and reviewed as security-relevant configuration.
+
 ## 12. Documentation deliverables and maintenance
 
 The following compliance artifacts are maintained in-repo and updated as the system evolves:
@@ -203,6 +215,7 @@ This SDP aligns with the roadmap in `DevPlan.md`:
 - **Week 2**: SRS/threat model/domain schema/CI security gates
 - **Week 3**: ledger and policy engine hardening + focused unit tests
 - **Week 4**: API expansion, integration tests, release checklist publication
+- **Week 5**: MONAI data caching integration (CacheDataset/PersistentDataset), cache-control tests, and operational runbook updates
 
 Progress and closure records should be captured in `docs/architecture/week*-closure.md` artifacts.
 
@@ -211,6 +224,7 @@ Current closure state (2026-06-13):
 - Week 1: Closed (`docs/architecture/week1-closure.md`)
 - Week 2: Closed (`docs/architecture/week2-closure.md`)
 - Week 3: Closed for current implementation slice (`docs/architecture/week3-closure.md`)
+- Week 5: Planned (MONAI data caching integration and verification evidence)
 
 ## 14. Entry and exit criteria summary
 
