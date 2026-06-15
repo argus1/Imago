@@ -25,3 +25,8 @@ compliance/*
 medical_image_file_formats.md
 storage strategy_medical_images.md
 docs/imgkb/monai_image_storage.md
+
+# Generated security scan artifacts
+.secrets.baseline
+bandit.json
+bandit.sarif
