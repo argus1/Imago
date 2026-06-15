@@ -76,7 +76,9 @@ def test_monai_cache_lineage_recording_and_source_immutability(tmp_path: Path) -
     assert record.transform_version == "tfm-2026-06-15"
     assert store.list_records() == [record]
 
-    hash_reader = lambda key: source_hash if key == "study-1/image-1.dcm" else "x" * 64
+    def hash_reader(key: str) -> str:
+        return source_hash if key == "study-1/image-1.dcm" else "x" * 64
+
     assert coordinator.verify_canonical_source_immutability(
         object_key="study-1/image-1.dcm",
         expected_hash=source_hash,

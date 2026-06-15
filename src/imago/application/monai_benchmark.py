@@ -10,7 +10,11 @@ from imago.config.settings import Settings
 from imago.domain.events import LedgerEvent
 from imago.ledger.chain import LedgerChain
 from imago.ledger.service import IdempotentLedgerService
-from imago.storage.monai_cache import InMemoryMonaiCacheLineageStore, MonaiCacheConfig, MonaiCacheCoordinator
+from imago.storage.monai_cache import (
+    InMemoryMonaiCacheLineageStore,
+    MonaiCacheConfig,
+    MonaiCacheCoordinator,
+)
 from imago.storage.policy import DataClassification
 
 
@@ -36,8 +40,14 @@ class ScratchpadBenchmarkComparison:
     p95_latency_delta_ms: float
 
     def within_threshold(self, *, max_ratio: float, max_delta_ms: float) -> bool:
-        ratio_ok = self.mean_latency_ratio <= max_ratio and self.p95_latency_ratio <= max_ratio
-        delta_ok = self.mean_latency_delta_ms <= max_delta_ms and self.p95_latency_delta_ms <= max_delta_ms
+        ratio_ok = (
+            self.mean_latency_ratio <= max_ratio
+            and self.p95_latency_ratio <= max_ratio
+        )
+        delta_ok = (
+            self.mean_latency_delta_ms <= max_delta_ms
+            and self.p95_latency_delta_ms <= max_delta_ms
+        )
         return ratio_ok or delta_ok
 
     def to_dict(self) -> dict[str, object]:
@@ -86,7 +96,7 @@ def run_scratchpad_benchmark(
         _simulate_ledger_churn(ledger_service, ledger_updates_per_cycle, idx)
 
         source_object_key = f"study-{idx % 7}/image-{idx}.dcm"
-        source_hash = hashlib.sha256(source_object_key.encode("utf-8")).hexdigest()
+        source_hash = hashlib.sha256(source_object_key.encode()).hexdigest()
 
         started = perf_counter_ns()
         for op in range(operations_per_iteration):

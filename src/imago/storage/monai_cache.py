@@ -2,11 +2,11 @@ from __future__ import annotations
 
 import hashlib
 import hmac
+from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from enum import StrEnum
 from pathlib import Path
-from typing import Callable
 
 from imago.config.settings import Settings
 from imago.storage.policy import DataClassification
@@ -27,7 +27,7 @@ class MonaiCacheConfig:
     persistent_cache_dir: Path | None = None
 
     @classmethod
-    def from_settings(cls, settings: Settings) -> "MonaiCacheConfig":
+    def from_settings(cls, settings: Settings) -> MonaiCacheConfig:
         mode = MonaiCacheMode(settings.monai_cache_mode.strip().lower())
         storage_root = Path(settings.storage_root).resolve()
 
@@ -97,7 +97,7 @@ class MonaiCacheCoordinator:
             (
                 f"{source_object_key}:{source_object_hash}:{cache_artifact_ref}:"
                 f"{self._config.mode.value}:{self._config.transform_version}:{created_at.isoformat()}"
-            ).encode("utf-8"),
+            ).encode(),
         ).hexdigest()
 
         record = CacheLineageRecord(

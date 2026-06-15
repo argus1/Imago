@@ -118,7 +118,7 @@ class InMemoryLedgerWriter(LedgerWriter):
         metadata_id: str,
     ) -> str:
         idempotency_key = hashlib.sha256(
-            f"{payload.object_key}:{object_hash}:{metadata_id}".encode("utf-8"),
+            f"{payload.object_key}:{object_hash}:{metadata_id}".encode(),
         ).hexdigest()
 
         existing_event_id = self._idempotency_to_event_id.get(idempotency_key)

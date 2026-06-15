@@ -1,7 +1,7 @@
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable
 
 from imago.config.settings import Settings
 from imago.storage.monai_cache import CacheLineageRecord, MonaiCacheCoordinator
@@ -35,7 +35,7 @@ class MonaiScratchpadUsageService:
         *,
         coordinator: MonaiCacheCoordinator,
         settings: Settings,
-    ) -> "MonaiScratchpadUsageService":
+    ) -> MonaiScratchpadUsageService:
         return cls(
             coordinator,
             emit_lineage_records=settings.monai_emit_lineage_records,

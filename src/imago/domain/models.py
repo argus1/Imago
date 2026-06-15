@@ -87,7 +87,7 @@ class AuditRecord:
         resource_id: str,
         outcome: AuditOutcome,
         correlation_id: str,
-    ) -> "AuditRecord":
+    ) -> AuditRecord:
         return cls(
             audit_id=audit_id,
             principal_id=principal_id,

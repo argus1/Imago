@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
 
 from imago.application.monai_benchmark import compare_scratchpad_under_ledger_churn
 
