@@ -77,6 +77,11 @@ class InMemoryObjectStorage(ObjectStorage):
     def delete_object(self, key: str) -> None:
         self._objects.pop(key, None)
 
+    def get_object(self, key: str) -> bytes:
+        if key not in self._objects:
+            raise KeyError(f"unknown object_key: {key}")
+        return self._objects[key]
+
 
 class InMemoryMetadataIndex(MetadataIndex):
     def __init__(self) -> None:

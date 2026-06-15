@@ -4,7 +4,7 @@ from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from imago.domain.models import AccessAction
+from imago.domain.models import AccessAction, AuditOutcome
 from imago.storage.policy import DataClassification, FormatFamily
 
 
@@ -25,6 +25,21 @@ class ImageIngestResponse(BaseModel):
     ledger_event_id: str
     classification: str
     format_family: str
+
+
+class ImageVerifyRequest(BaseModel):
+    object_key: str = Field(min_length=1)
+    expected_hash: str = Field(min_length=64, max_length=64)
+
+    model_config = ConfigDict(extra="forbid")
+
+
+class ImageVerifyResponse(BaseModel):
+    object_key: str
+    expected_hash: str
+    computed_hash: str
+    verified: bool
+    verified_at: datetime
 
 
 class AccessGrantCreateRequest(BaseModel):
@@ -68,3 +83,18 @@ class AccessEvaluationResponse(BaseModel):
     allowed: bool
     reason: str
     occurred_at: datetime
+
+
+class AuditDecisionRecord(BaseModel):
+    principal_id: str
+    image_id: str
+    action: AccessAction
+    classification: DataClassification
+    outcome: AuditOutcome
+    reason: str
+    occurred_at: datetime
+
+
+class AuditDecisionListResponse(BaseModel):
+    total: int
+    items: list[AuditDecisionRecord]

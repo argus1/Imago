@@ -21,6 +21,12 @@ class FilesystemObjectStorage:
         if target.exists():
             target.unlink()
 
+    def get_object(self, key: str) -> bytes:
+        target = self._resolve_target(key)
+        if not target.exists():
+            raise KeyError(f"unknown object_key: {key}")
+        return target.read_bytes()
+
     def _resolve_target(self, key: str) -> Path:
         normalized = PurePosixPath(key)
         if normalized.is_absolute() or ".." in normalized.parts:

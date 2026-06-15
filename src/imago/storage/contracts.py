@@ -52,6 +52,12 @@ class AtomicIngestionService(Protocol):
 
 
 @runtime_checkable
+class HashVerifiableIngestionService(Protocol):
+    def verify_object_hash(self, object_key: str) -> str:
+        """Return SHA-256 hash for a stored object key."""
+
+
+@runtime_checkable
 class DeletableObjectStorage(Protocol):
     def delete_object(self, key: str) -> None:
         """Delete object for compensation when downstream steps fail."""
@@ -61,3 +67,9 @@ class DeletableObjectStorage(Protocol):
 class CompensatingMetadataIndex(Protocol):
     def delete_metadata(self, metadata_id: str) -> None:
         """Delete metadata record for compensation when ledger write fails."""
+
+
+@runtime_checkable
+class ReadableObjectStorage(Protocol):
+    def get_object(self, key: str) -> bytes:
+        """Fetch stored object bytes for integrity verification."""

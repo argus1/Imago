@@ -11,6 +11,7 @@ from imago.storage.contracts import (
     LedgerWriter,
     MetadataIndex,
     ObjectStorage,
+    ReadableObjectStorage,
 )
 
 
@@ -74,3 +75,9 @@ class AtomicIngestionCoordinator(AtomicIngestionService):
                 self._object_storage.delete_object(object_key)
             except Exception:
                 pass
+
+    def verify_object_hash(self, object_key: str) -> str:
+        if not isinstance(self._object_storage, ReadableObjectStorage):
+            raise NotImplementedError("object storage backend does not support verification reads")
+        payload = self._object_storage.get_object(object_key)
+        return hashlib.sha256(payload).hexdigest()
