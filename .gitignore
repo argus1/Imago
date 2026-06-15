@@ -3,6 +3,7 @@ __pycache__/
 *.so
 *.egg-info/
 .venv/
+.venv-ci311/
 .venv311/
 .pytest_cache/
 .mypy_cache/
