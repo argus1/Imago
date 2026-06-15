@@ -73,3 +73,34 @@ Any change to lifecycle, encryption, versioning, or public-access posture must i
 - reviewer sign-off
 - before/after evidence
 - rollback notes
+
+## 8. MONAI cache operations (Week 5 baseline)
+
+These procedures apply when `IMAGO_MONAI_CACHE_MODE` is set to `cache_dataset` or
+`persistent_dataset`.
+
+### 8.1 Configuration baseline
+
+- `IMAGO_MONAI_CACHE_MODE`: `disabled` | `cache_dataset` | `persistent_dataset`
+- `IMAGO_MONAI_PERSISTENT_CACHE_DIR`: required for `persistent_dataset`; must be outside immutable archive storage roots.
+- `IMAGO_MONAI_TRANSFORM_VERSION`: required transform pipeline identifier for lineage/reproducibility.
+- `IMAGO_MONAI_CACHE_RETENTION_HOURS`: default cache retention window.
+- `IMAGO_MONAI_CACHE_MAX_ITEMS`: soft cap for cache entries.
+
+### 8.2 Sizing and retention guardrails
+
+1. Place persistent caches on scratch volumes (local SSD or ephemeral worker volume), never in canonical archive paths.
+2. Size cache volumes so planned peak cache occupancy remains below 80% of allocated storage.
+3. Use retention-based cleanup at least daily, and after each major model/transform version rollover.
+4. Treat cache artifacts as volatile derivatives; do not include cache files in source-of-truth integrity checks.
+
+### 8.3 Purge/rebuild procedure
+
+Use this when cache corruption, drift, or transform-version changes are detected.
+
+1. Pause training/inference jobs using the affected cache path.
+2. Capture evidence (timestamp, host, transform version, cache path).
+3. Remove cache directory contents (or rotate to a new cache path).
+4. Restart workloads to repopulate cache from canonical source images.
+5. Verify canonical source hash checks still pass against immutable storage.
+6. Record closure evidence in change/incident notes.

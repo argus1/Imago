@@ -215,7 +215,7 @@ This SDP aligns with the roadmap in `DevPlan.md`:
 - **Week 2**: SRS/threat model/domain schema/CI security gates
 - **Week 3**: ledger and policy engine hardening + focused unit tests
 - **Week 4**: API expansion, integration tests, release checklist publication
-- **Week 5**: MONAI data caching integration (CacheDataset/PersistentDataset), cache-control tests, and operational runbook updates
+- **Week 5**: MONAI data caching integration (CacheDataset/PersistentDataset), optional lineage-emission toggle, cache-control tests, benchmark evidence under ledger churn, and operational runbook updates
 
 Progress and closure records should be captured in `docs/architecture/week*-closure.md` artifacts.
 
@@ -224,7 +224,7 @@ Current closure state (2026-06-13):
 - Week 1: Closed (`docs/architecture/week1-closure.md`)
 - Week 2: Closed (`docs/architecture/week2-closure.md`)
 - Week 3: Closed for current implementation slice (`docs/architecture/week3-closure.md`)
-- Week 5: Planned (MONAI data caching integration and verification evidence)
+- Week 5: In progress (`docs/architecture/week5-closure.md`)
 
 ## 14. Entry and exit criteria summary
 

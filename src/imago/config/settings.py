@@ -10,6 +10,12 @@ class Settings(BaseSettings):
     api_port: int = 8000
     storage_backend: str = "filesystem"
     storage_root: str = "./.data/imago"
+    monai_cache_mode: str = "disabled"
+    monai_persistent_cache_dir: str = "./.cache/imago/monai"
+    monai_transform_version: str = "dev"
+    monai_emit_lineage_records: bool = True
+    monai_cache_retention_hours: int = 24
+    monai_cache_max_items: int = 10000
 
     model_config = SettingsConfigDict(
         env_file=".env",
