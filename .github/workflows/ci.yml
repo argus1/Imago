@@ -86,7 +86,28 @@ jobs:
           from pathlib import Path
 
           source = Path("bandit.json")
+          empty_sarif = {
+            "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+            "version": "2.1.0",
+            "runs": [
+              {
+                "tool": {
+                  "driver": {
+                    "name": "Bandit",
+                    "informationUri": "https://bandit.readthedocs.io/",
+                    "rules": [],
+                  },
+                },
+                "results": [],
+              },
+            ],
+          }
+
           if not source.exists():
+            Path("bandit.sarif").write_text(
+              json.dumps(empty_sarif, indent=2),
+              encoding="utf-8",
+            )
             raise SystemExit(0)
 
           data = json.loads(source.read_text(encoding="utf-8"))
@@ -173,8 +194,8 @@ jobs:
           echo "bandit_exit_code=${bandit_exit_code}" >> "$GITHUB_OUTPUT"
 
       - name: Upload SAST SARIF
-        if: always() && hashFiles('bandit.sarif') != ''
-        uses: github/codeql-action/upload-sarif@v4
+        if: always()
+        uses: github/codeql-action/upload-sarif@v5
         with:
           sarif_file: bandit.sarif
 
