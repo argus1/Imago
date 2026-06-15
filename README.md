@@ -24,7 +24,7 @@ Behavior notes:
 	require `admin` or `super_admin` role.
 - `POST /api/v1/policy/evaluate` derives principal identity from headers (not from body fields).
 
-## MONAI scratchpad controls (Week 5)
+## NVIDIA CLARA - MONAI Integration
 
 MONAI cache usage is treated as a scratchpad layer, separate from canonical image storage.
 
