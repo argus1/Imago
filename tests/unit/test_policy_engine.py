@@ -112,3 +112,60 @@ def test_policy_engine_grant_idempotency_key_reuses_existing_grant() -> None:
 
     assert first == second
     assert len(engine.decisions) == 0
+
+
+@pytest.mark.unit
+def test_policy_engine_allows_role_with_whitespace_and_case() -> None:
+    engine = AuthorizationPolicyEngine()
+    engine.record_grant(_grant())
+
+    decision = engine.evaluate(
+        principal=_principal(role="  Radiologist  "),
+        asset=_asset(),
+        action=AccessAction.READ,
+    )
+
+    assert decision.allowed is True
+    assert decision.reason == "allowed"
+
+
+@pytest.mark.unit
+def test_policy_engine_rejects_grant_idempotency_key_reused_for_different_grant() -> None:
+    engine = AuthorizationPolicyEngine()
+    first_grant = _grant()
+    second_grant = AccessGrant(
+        grant_id="grant-2",
+        image_id=first_grant.image_id,
+        principal_id=first_grant.principal_id,
+        action=first_grant.action,
+        granted_by=first_grant.granted_by,
+        granted_at=first_grant.granted_at,
+        expires_at=first_grant.expires_at,
+    )
+
+    engine.record_grant(first_grant, idempotency_key="grant-key-1")
+
+    with pytest.raises(ValueError, match="idempotency_key reused with different grant_id"):
+        engine.record_grant(second_grant, idempotency_key="grant-key-1")
+
+
+@pytest.mark.unit
+def test_policy_engine_rejects_revoke_idempotency_key_reused_for_different_grant() -> None:
+    engine = AuthorizationPolicyEngine()
+    first_grant = _grant()
+    second_grant = AccessGrant(
+        grant_id="grant-2",
+        image_id=first_grant.image_id,
+        principal_id=first_grant.principal_id,
+        action=first_grant.action,
+        granted_by=first_grant.granted_by,
+        granted_at=first_grant.granted_at,
+        expires_at=first_grant.expires_at,
+    )
+    engine.record_grant(first_grant)
+    engine.record_grant(second_grant)
+
+    engine.revoke_grant("grant-1", idempotency_key="revoke-key-1")
+
+    with pytest.raises(ValueError, match="idempotency_key reused with different grant_id"):
+        engine.revoke_grant("grant-2", idempotency_key="revoke-key-1")

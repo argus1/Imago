@@ -1,5 +1,7 @@
 from dataclasses import replace
 
+import pytest
+
 from imago.domain.events import LedgerEvent
 from imago.ledger.chain import LedgerChain
 
@@ -42,3 +44,18 @@ def test_chain_verify_fails_after_tamper() -> None:
     chain.blocks[1] = tampered
 
     assert chain.verify() is False
+
+
+def test_chain_verify_fails_if_genesis_tampered() -> None:
+    chain = LedgerChain()
+    tampered_genesis = replace(chain.blocks[0], timestamp="2000-01-01T00:00:00+00:00")
+    chain.blocks[0] = tampered_genesis
+
+    assert chain.verify() is False
+
+
+def test_chain_append_rejects_empty_event_list() -> None:
+    chain = LedgerChain()
+
+    with pytest.raises(ValueError):
+        chain.append([])

@@ -19,9 +19,10 @@ def _event(event_id: str = "evt-1") -> LedgerEvent:
 @pytest.mark.unit
 def test_idempotent_service_reuses_existing_submission() -> None:
     service = IdempotentLedgerService(LedgerChain())
+    event = _event("evt-1")
 
-    first = service.submit_events(idempotency_key="idem-1", events=[_event("evt-1")])
-    second = service.submit_events(idempotency_key="idem-1", events=[_event("evt-2")])
+    first = service.submit_events(idempotency_key="idem-1", events=[event])
+    second = service.submit_events(idempotency_key="idem-1", events=[event])
 
     assert first.reused is False
     assert second.reused is True
@@ -38,3 +39,13 @@ def test_idempotent_service_rejects_empty_inputs() -> None:
 
     with pytest.raises(ValueError):
         service.submit_events(idempotency_key="idem-1", events=[])
+
+
+@pytest.mark.unit
+def test_idempotent_service_rejects_same_key_with_different_payload() -> None:
+    service = IdempotentLedgerService(LedgerChain())
+
+    service.submit_events(idempotency_key="idem-1", events=[_event("evt-1")])
+
+    with pytest.raises(ValueError, match="idempotency_key reused with different payload"):
+        service.submit_events(idempotency_key="idem-1", events=[_event("evt-2")])

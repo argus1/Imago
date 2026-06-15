@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import asdict
 from dataclasses import dataclass
 
 from imago.domain.events import LedgerEvent
@@ -17,7 +18,7 @@ class IdempotentLedgerService:
 
     def __init__(self, chain: LedgerChain) -> None:
         self._chain = chain
-        self._submitted: dict[str, str] = {}
+        self._submitted: dict[str, tuple[str, str]] = {}
 
     @property
     def chain(self) -> LedgerChain:
@@ -34,14 +35,24 @@ class IdempotentLedgerService:
         if not events:
             raise ValueError("events must not be empty")
 
-        existing_hash = self._submitted.get(idempotency_key)
-        if existing_hash is not None:
+        request_hash = self._chain.canonical_hash(
+            {
+                "events": [asdict(event) for event in events],
+            },
+        )
+
+        existing_submission = self._submitted.get(idempotency_key)
+        if existing_submission is not None:
+            existing_hash, existing_request_hash = existing_submission
+            if existing_request_hash != request_hash:
+                raise ValueError("idempotency_key reused with different payload")
+
             existing_block = self._find_block(existing_hash)
             if existing_block is not None:
                 return LedgerSubmissionResult(block=existing_block, reused=True)
 
         block = self._chain.append(events)
-        self._submitted[idempotency_key] = block.block_hash
+        self._submitted[idempotency_key] = (block.block_hash, request_hash)
         return LedgerSubmissionResult(block=block, reused=False)
 
     def verify_chain(self) -> bool:

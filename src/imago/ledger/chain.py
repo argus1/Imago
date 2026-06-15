@@ -31,6 +31,9 @@ class LedgerChain:
         return hashlib.sha256(serialized.encode("utf-8")).hexdigest()
 
     def append(self, events: list[LedgerEvent]) -> LedgerBlock:
+        if not events:
+            raise ValueError("events must not be empty")
+
         previous = self._blocks[-1]
         index = previous.index + 1
         timestamp = datetime.now(UTC).isoformat()
@@ -52,9 +55,29 @@ class LedgerChain:
         return block
 
     def verify(self) -> bool:
+        genesis = self._blocks[0]
+        expected_genesis_payload = {
+            "index": 0,
+            "timestamp": "1970-01-01T00:00:00+00:00",
+            "events": [],
+            "previous_hash": "0",
+        }
+        if genesis.index != 0:
+            return False
+        if genesis.previous_hash != "0":
+            return False
+        if genesis.timestamp != expected_genesis_payload["timestamp"]:
+            return False
+        if genesis.events:
+            return False
+        if genesis.block_hash != self.canonical_hash(expected_genesis_payload):
+            return False
+
         for idx in range(1, len(self._blocks)):
             current = self._blocks[idx]
             previous = self._blocks[idx - 1]
+            if current.index != previous.index + 1:
+                return False
             if current.previous_hash != previous.block_hash:
                 return False
             payload = {

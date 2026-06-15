@@ -68,7 +68,8 @@ class AuthorizationPolicyEngine:
 
     def __init__(self) -> None:
         self._grants_by_id: dict[str, AccessGrant] = {}
-        self._idempotency_index: dict[str, str] = {}
+        self._grant_idempotency_index: dict[str, str] = {}
+        self._revoke_idempotency_index: dict[str, str] = {}
         self._decisions: list[PolicyDecision] = []
 
     @property
@@ -77,13 +78,19 @@ class AuthorizationPolicyEngine:
 
     def record_grant(self, grant: AccessGrant, *, idempotency_key: str | None = None) -> str:
         if idempotency_key is not None:
-            existing_grant_id = self._idempotency_index.get(idempotency_key)
+            normalized_idempotency_key = idempotency_key.strip()
+            if not normalized_idempotency_key:
+                raise ValueError("idempotency_key must not be empty")
+
+            existing_grant_id = self._grant_idempotency_index.get(normalized_idempotency_key)
             if existing_grant_id is not None:
+                if existing_grant_id != grant.grant_id:
+                    raise ValueError("idempotency_key reused with different grant_id")
                 return existing_grant_id
 
         self._grants_by_id[grant.grant_id] = grant
         if idempotency_key is not None:
-            self._idempotency_index[idempotency_key] = grant.grant_id
+            self._grant_idempotency_index[idempotency_key.strip()] = grant.grant_id
         return grant.grant_id
 
     def revoke_grant(
@@ -93,8 +100,15 @@ class AuthorizationPolicyEngine:
         revoked_at: datetime | None = None,
         idempotency_key: str | None = None,
     ) -> None:
-        if idempotency_key is not None and idempotency_key in self._idempotency_index:
-            return
+        if idempotency_key is not None:
+            normalized_idempotency_key = idempotency_key.strip()
+            if not normalized_idempotency_key:
+                raise ValueError("idempotency_key must not be empty")
+            existing_grant_id = self._revoke_idempotency_index.get(normalized_idempotency_key)
+            if existing_grant_id is not None:
+                if existing_grant_id != grant_id:
+                    raise ValueError("idempotency_key reused with different grant_id")
+                return
 
         if grant_id not in self._grants_by_id:
             raise KeyError(f"unknown grant_id: {grant_id}")
@@ -103,7 +117,7 @@ class AuthorizationPolicyEngine:
         self._grants_by_id[grant_id] = replace(self._grants_by_id[grant_id], revoked_at=mark)
 
         if idempotency_key is not None:
-            self._idempotency_index[idempotency_key] = grant_id
+            self._revoke_idempotency_index[idempotency_key.strip()] = grant_id
 
     def evaluate(
         self,
@@ -114,7 +128,7 @@ class AuthorizationPolicyEngine:
         at: datetime | None = None,
     ) -> PolicyDecision:
         now = at or datetime.now(UTC)
-        role = principal.role.lower()
+        role = principal.role.strip().lower()
 
         if role != "super_admin" and principal.organization_id != asset.owner_organization_id:
             return self._record_decision(
