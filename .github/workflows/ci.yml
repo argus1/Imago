@@ -51,7 +51,7 @@ jobs:
           python -m pip install pip-audit bandit[toml] detect-secrets
 
       - name: Dependency vulnerability scan
-        run: pip-audit --progress-spinner off
+        run: pip-audit --progress-spinner off .
 
       - name: Secret scan
         run: |
